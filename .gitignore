@@ -1,0 +1,16 @@
+# 系统
+.DS_Store
+
+# 个人素材与版权图片(不发布)
+IMG_*.PNG
+VCG*.jpg
+poster.png
+
+# 本地配置
+.hammer/
+android-app/local.properties
+
+# Android 构建产物
+android-app/build/
+android-app/app/build/
+android-app/.gradle/

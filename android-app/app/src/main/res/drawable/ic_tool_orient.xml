@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 横竖方向:横版 + 竖版两个画框(与网页版 toolbar SVG 一致) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path
+        android:pathData="M3.5,6 h10 a1.5,1.5 0 0 1 1.5,1.5 v9 a1.5,1.5 0 0 1 -1.5,1.5 h-10 a1.5,1.5 0 0 1 -1.5,-1.5 v-9 a1.5,1.5 0 0 1 1.5,-1.5 z"
+        android:strokeColor="#FFFFFF" android:strokeWidth="1.8"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M18.5,3 h2 a1.5,1.5 0 0 1 1.5,1.5 v15 a1.5,1.5 0 0 1 -1.5,1.5 h-2 a1.5,1.5 0 0 1 -1.5,-1.5 v-15 a1.5,1.5 0 0 1 1.5,-1.5 z"
+        android:strokeColor="#FFFFFF" android:strokeWidth="1.8"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+</vector>

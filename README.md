@@ -1,0 +1,31 @@
+# 电影感裁剪工具 · Cinematic Crop
+
+把照片裁剪成电影画幅的小工具：比例裁剪、黑边、旋转、批量导出，纯前端实现，无后端、无上传，照片不离开设备。
+
+## 在线使用（iPhone / 任意设备）
+
+打开 **https://dongwb.github.io/imgcrop/** ，Safari 中「分享到 → 添加到主屏幕」即可像 App 一样全屏使用，支持离线。
+
+## 功能
+
+- 多种电影画幅比例（可自定义、可管理）
+- 上下黑边（遮幅）调节
+- 旋转 / 翻转
+- 批量处理多张照片，打包 ZIP 导出
+- 输出格式 / 画质可选
+
+## 项目结构
+
+| 文件 | 说明 |
+|------|------|
+| `index.html` | Web 版主程序（单文件，PWA） |
+| `manifest.json` / `sw.js` / `icons/` | PWA 配置：主屏幕图标、全屏、离线缓存 |
+| `android-app/` | Android 原生版（Java，`com.cinematic.crop`） |
+| `make_poster.py` | 海报图生成脚本 |
+
+## 本地运行
+
+```bash
+python3 -m http.server 8000
+# 打开 http://localhost:8000
+```

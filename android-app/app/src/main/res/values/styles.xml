@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 工具栏图标按钮:默认灰,选中态由代码置黄 -->
+    <style name="ToolButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:tint">#bbbbbb</item>
+    </style>
+
+    <!-- 选项面板里的小 chip 按钮:分辨率/格式 -->
+    <style name="ChipButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">6dp</item>
+        <item name="android:background">@drawable/btn_dark</item>
+        <item name="android:textColor">#bbbbbb</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:paddingTop">7dp</item>
+        <item name="android:paddingBottom">7dp</item>
+        <item name="android:minHeight">0dp</item>
+    </style>
+</resources>

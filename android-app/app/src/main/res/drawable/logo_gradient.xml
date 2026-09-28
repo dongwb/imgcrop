@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 应用内 logo 底色:与启动图标一致的薄荷绿→天空蓝渐变 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:angle="315"
+        android:startColor="#7FE3C8"
+        android:centerColor="#6FCBDB"
+        android:endColor="#5FB4EE"
+        android:type="linear" />
+    <corners android:radius="22dp" />
+</shape>

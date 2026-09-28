@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 与网页版顶栏 SVG logo 一致:白色照片框 + 上下黑边 + 蓝/青对角内容区 + 深蓝裁剪角标 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M20,28 h68 v52 h-68 z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M20,28 h68 v12 h-68 z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M20,68 h68 v12 h-68 z" />
+    <path
+        android:fillColor="#4a7dff"
+        android:pathData="M20,40 L88,40 L20,68 z" />
+    <path
+        android:fillColor="#45c8dc"
+        android:pathData="M88,40 L88,68 L20,68 z" />
+    <path
+        android:strokeColor="#3d6bd8"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M27,21 L13,21 L13,35 M81,21 L95,21 L95,35 M13,73 L13,87 L27,87 M95,73 L95,87 L81,87" />
+</vector>

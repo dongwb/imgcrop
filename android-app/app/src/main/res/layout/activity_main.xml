@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 单页布局,与网页版 index.html 一致:
+     顶栏(取消/logo/导出) → 编辑画布 → 五图标工具栏 → 选项面板 → 重置/确认栏 → 底部照片条 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0d0d0d"
+    android:orientation="vertical">
+
+    <!-- 顶栏:取消 / logo / 导出 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:minWidth="48dp"
+            android:text="取消"
+            android:textColor="#cfcfcf"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/logo_gradient"
+            android:gravity="center"
+            android:text="🎬"
+            android:textSize="20sp" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnExport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:enabled="false"
+            android:minWidth="48dp"
+            android:text="导出"
+            android:textColor="#66D9C0"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- 预览区:空状态 / 裁剪画布 / 页码 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#000000">
+
+        <LinearLayout
+            android:id="@+id/emptyState"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:background="@drawable/logo_gradient"
+                android:gravity="center"
+                android:text="🎬"
+                android:textSize="44sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="请先选照片再编辑"
+                android:textColor="#666666"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <com.cinematic.crop.CropImageView
+            android:id="@+id/cropView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/pageInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:textColor="#777777"
+            android:textSize="12sp" />
+    </FrameLayout>
+
+    <!-- 五图标工具栏:比例 / 黑边 / 旋转 / 横竖方向 / 输出设置(统一描边风格矢量图标) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1c1c1e"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <ImageButton
+            android:id="@+id/toolRatio"
+            style="@style/ToolButton"
+            android:contentDescription="画幅比例"
+            android:src="@drawable/ic_tool_ratio" />
+
+        <ImageButton
+            android:id="@+id/toolBars"
+            style="@style/ToolButton"
+            android:contentDescription="黑边"
+            android:src="@drawable/ic_tool_bars" />
+
+        <ImageButton
+            android:id="@+id/toolRotate"
+            style="@style/ToolButton"
+            android:contentDescription="旋转"
+            android:src="@drawable/ic_tool_rotate" />
+
+        <ImageButton
+            android:id="@+id/toolOrient"
+            style="@style/ToolButton"
+            android:contentDescription="横竖方向"
+            android:src="@drawable/ic_tool_orient" />
+
+        <ImageButton
+            android:id="@+id/toolOutput"
+            style="@style/ToolButton"
+            android:contentDescription="输出设置"
+            android:src="@drawable/ic_tool_output" />
+    </LinearLayout>
+
+    <!-- 选项面板:一次只显示一组,由工具栏切换 -->
+    <LinearLayout
+        android:id="@+id/options"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        android:minHeight="108dp"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <!-- 比例 -->
+        <HorizontalScrollView
+            android:id="@+id/paneRatio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/ratioChips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="4dp" />
+        </HorizontalScrollView>
+
+        <!-- 黑边 -->
+        <LinearLayout
+            android:id="@+id/paneBars"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <CheckBox
+                android:id="@+id/barsCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="#66D9C0"
+                android:checked="true"
+                android:text="对称黑边"
+                android:textColor="#cccccc" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="厚度"
+                    android:textColor="#999999"
+                    android:textSize="13sp" />
+
+                <SeekBar
+                    android:id="@+id/barsSeek"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:max="1500"
+                    android:progress="454"
+                    android:progressTint="#66D9C0"
+                    android:thumbTint="#66D9C0" />
+
+                <TextView
+                    android:id="@+id/barsVal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="52dp"
+                    android:text="4.54%"
+                    android:textColor="#66D9C0"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/barsReset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:background="@android:color/transparent"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:padding="6dp"
+                    android:text="重置"
+                    android:textColor="#999999"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 旋转 -->
+        <LinearLayout
+            android:id="@+id/paneRotate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnRotL"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_dark"
+                android:text="⟲ 左转 90°"
+                android:textColor="#dddddd" />
+
+            <Button
+                android:id="@+id/btnRotR"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_dark"
+                android:text="⟳ 右转 90°"
+                android:textColor="#dddddd" />
+        </LinearLayout>
+
+        <!-- 横竖方向 -->
+        <LinearLayout
+            android:id="@+id/paneOrient"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnLandscape"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:text="横版(上下黑边)" />
+
+            <Button
+                android:id="@+id/btnPortrait"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:text="竖版(左右黑边)" />
+        </LinearLayout>
+
+        <!-- 输出尺寸 -->
+        <LinearLayout
+            android:id="@+id/paneOutput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:text="分辨率"
+                    android:textColor="#999999"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/btnResOrig"
+                    style="@style/ChipButton"
+                    android:layout_marginStart="0dp"
+                    android:text="原始" />
+
+                <Button
+                    android:id="@+id/btnRes4k"
+                    style="@style/ChipButton"
+                    android:text="4K" />
+
+                <Button
+                    android:id="@+id/btnRes2k"
+                    style="@style/ChipButton"
+                    android:text="2K" />
+
+                <Button
+                    android:id="@+id/btnRes1080"
+                    style="@style/ChipButton"
+                    android:text="1080P" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:text="输出长边像素"
+                    android:textColor="#999999"
+                    android:textSize="13sp" />
+
+                <EditText
+                    android:id="@+id/outWidth"
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edit_dark"
+                    android:inputType="number"
+                    android:padding="8dp"
+                    android:text="0"
+                    android:textColor="#eeeeee"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="0 = 原尺寸"
+                    android:textColor="#777777"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:text="格式"
+                    android:textColor="#999999"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/btnFmtJpg"
+                    style="@style/ChipButton"
+                    android:layout_marginStart="0dp"
+                    android:text="JPG" />
+
+                <Button
+                    android:id="@+id/btnFmtPng"
+                    style="@style/ChipButton"
+                    android:text="PNG 无损" />
+
+                <Button
+                    android:id="@+id/btnFmtWebp"
+                    style="@style/ChipButton"
+                    android:text="WebP" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/qualityRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="压缩质量"
+                    android:textColor="#999999"
+                    android:textSize="13sp" />
+
+                <SeekBar
+                    android:id="@+id/qualitySeek"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:max="50"
+                    android:progress="42"
+                    android:progressTint="#66D9C0"
+                    android:thumbTint="#66D9C0" />
+
+                <TextView
+                    android:id="@+id/qualityVal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="40dp"
+                    android:text="92%"
+                    android:textColor="#66D9C0"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 重置 / 应用到全部 -->
+    <LinearLayout
+        android:id="@+id/confirmBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btnReset"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:text="重置"
+            android:textColor="#dddddd"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btnApplyAll"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:text="应用到全部"
+            android:textColor="#dddddd"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- 照片选择头:点击加图,右侧全选按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pickerHead"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="全部照片 ∨"
+            android:textColor="#dddddd"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnSelectAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/btn_dark"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="10dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="4dp"
+            android:text="全选"
+            android:textColor="#bbbbbb"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- 底部照片条:缩略图 + 勾选钮,末尾为加图按钮 -->
+    <HorizontalScrollView
+        android:id="@+id/pickerScroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/pickerRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="3dp"
+            android:paddingEnd="3dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/addThumb"
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:layout_margin="3dp"
+                android:background="@drawable/thumb_add"
+                android:gravity="center"
+                android:text="+"
+                android:textColor="#666666"
+                android:textSize="30sp" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+</LinearLayout>
