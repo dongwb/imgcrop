@@ -1,6 +1,6 @@
 // 电影感裁剪工具 — 离线缓存
 // 更新版本号即可让旧缓存失效
-const CACHE = "cinematic-crop-v1";
+const CACHE = "cinematic-crop-v2";
 
 const ASSETS = [
   "./",

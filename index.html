@@ -1182,6 +1182,25 @@ $("dlgOk").addEventListener("click", async () => {
 
 $("barsVal").textContent = BAR_PCT_DEFAULT.toFixed(2) + "%";
 
+// ---------- 快捷指令入口:#paste 时自动从剪贴板导入照片 ----------
+// 配合 iOS 快捷指令:分享照片 → 拷贝至剪贴板 → 打开本页 #paste
+(async () => {
+  if (!location.hash.includes("paste")) return;
+  if (!navigator.clipboard || !navigator.clipboard.read) return;
+  try {
+    const items = await navigator.clipboard.read();
+    const files = [];
+    for (const item of items) {
+      const type = item.types.find(t => t.startsWith("image/"));
+      if (!type) continue;
+      const blob = await item.getType(type);
+      const ext = type.split("/")[1] === "jpeg" ? "jpg" : (type.split("/")[1] || "png");
+      files.push(new File([blob], `照片_${files.length + 1}.${ext}`, { type }));
+    }
+    if (files.length) addFiles(files);
+  } catch (e) { /* 用户拒绝粘贴或无图片,保持空状态 */ }
+})();
+
 // PWA:注册离线缓存(失败不影响正常使用)
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
