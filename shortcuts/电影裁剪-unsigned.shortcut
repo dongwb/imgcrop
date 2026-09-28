@@ -414,6 +414,8 @@
 			<dict>
 				<key>GroupingIdentifier</key>
 				<string>33333333-3333-4333-8333-333333333333</string>
+				<key>UUID</key>
+				<string>0A00000E-0000-4000-8000-00000000000E</string>
 				<key>WFControlFlowMode</key>
 				<integer>0</integer>
 				<key>WFInput</key>
@@ -725,10 +727,10 @@
 				<dict>
 					<key>Value</key>
 					<dict>
+						<key>OutputUUID</key>
+						<string>0A00000E-0000-4000-8000-00000000000E</string>
 						<key>Type</key>
-						<string>Variable</string>
-						<key>VariableName</key>
-						<string>Repeat Results</string>
+						<string>ActionOutput</string>
 					</dict>
 					<key>WFSerializationType</key>
 					<string>WFTextTokenAttachment</string>
