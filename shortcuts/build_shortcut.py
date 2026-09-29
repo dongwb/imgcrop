@@ -55,6 +55,8 @@ G_MENU1, G_MENU2, G_MENU3 = ("22222222-2222-4222-8222-22222222222a",
 G_ORIENT = "66666666-6666-4666-8666-666666666666"
 G_IFW, G_IFH = ("44444444-4444-4444-8444-444444444444",
                 "55555555-5555-4555-8555-555555555555")
+G_POS, G_POS_END = ("88888888-8888-4888-8888-888888888888",
+                    "88888888-8888-4888-8888-88888888888e")
 G_BARS1, G_BARS2, G_BARSON = ("77777777-7777-4777-8777-77777777777a",
                               "77777777-7777-4777-8777-77777777777b",
                               "77777777-7777-4777-8777-77777777777c")
@@ -67,8 +69,8 @@ BLACK_PNG_B64 = ("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAC0lEQVR4nGNg"
 
 U = {k: f"0A0000{i:02X}-0000-4000-8000-0000000000{i:02X}" for i, k in enumerate([
     "sel", "c", "l1", "s1", "g", "w", "h", "o", "n1", "inv", "m1", "m2",
-    "d1", "d2", "dx", "dy", "px", "py", "cr", "dl", "bar", "bar2", "b2n",
-    "b2m", "pw", "ph", "blk", "blkd", "rs", "ov"], start=1)}
+    "d1", "d2", "dx", "dy", "px", "py", "cr", "cr2", "dl", "bar", "bar2",
+    "b2n", "b2m", "pw", "ph", "rw", "rh", "blk", "blkd", "rs", "ov"], start=1)}
 U_NUM = {i: f"0B0000{i:02X}-0000-4000-8000-0000000000{i:02X}" for i in range(1, 14)}
 
 RATIOS = [("电影画幅 2.71:1", 2.71), ("宽银幕 2.39:1", 2.39), ("16:9", 1.7778),
@@ -83,17 +85,21 @@ def set_num(varname, value, uuid):
             act(SETV, WFVariableName=varname, WFInput=out(uuid, "Number"))]
 
 
-def cond(condition, gid, true_actions, false_actions, input_att, number_value=None):
-    """现代条件格式: 整数条件 + 字符串数值 + 嵌套输入"""
+def cond(condition, gid, true_actions, false_actions, input_att, number_value=None,
+         end_uuid=None):
+    """现代条件格式: 整数条件 + 字符串数值 + 嵌套输入;end_uuid 供 If Result 引用"""
     p = dict(WFControlFlowMode=0, GroupingIdentifier=gid,
              WFCondition=condition, WFInput=cond_input(input_att))
     if number_value is not None:
         p["WFNumberValue"] = number_value
+    end = act(IF, WFControlFlowMode=2, GroupingIdentifier=gid)
+    if end_uuid:
+        end["WFWorkflowActionParameters"]["UUID"] = end_uuid
     return ([act(IF, **p)]
             + true_actions
             + [act(IF, WFControlFlowMode=1, GroupingIdentifier=gid)]
             + false_actions
-            + [act(IF, WFControlFlowMode=2, GroupingIdentifier=gid)])
+            + [end])
 
 
 def if_less_zero(input_att, gid, true_actions, false_actions):
@@ -144,18 +150,26 @@ def crop_loop(save):
     body += math_to("÷", "图宽", "实际比例", "目标高", U["m2"])
     body += minvar("裁剪宽", "图宽", "目标宽", G_IFW, U["d1"])
     body += minvar("裁剪高", "图高", "目标高", G_IFH, U["d2"])
-    # ── 位置:X=(图宽-裁剪宽)×系数, Y=(图高-裁剪高)×系数(横竖通用) ──
+    # ── 位置:居中走已验证的 Center 裁剪;靠上/靠下才用自定义坐标 ──
     body += math_to("-", "图宽", "裁剪宽", "差X", U["dx"])
     body += math_to("-", "图高", "裁剪高", "差Y", U["dy"])
     body += math_to("×", "差X", "位置系数", "X", U["px"])
     body += math_to("×", "差Y", "位置系数", "Y", U["py"])
+    body += cond(4, G_POS,
+                 [act("is.workflow.actions.image.crop", WFInput=REPEAT_ITEM,
+                      WFImageCropPosition="Center",
+                      WFImageCropWidth=var("裁剪宽"), WFImageCropHeight=var("裁剪高"),
+                      UUID=U["cr"])],
+                 [act("is.workflow.actions.image.crop", WFInput=REPEAT_ITEM,
+                      WFImageCropPosition="Custom",
+                      WFImageCropX=var("X"), WFImageCropY=var("Y"),
+                      WFImageCropWidth=var("裁剪宽"), WFImageCropHeight=var("裁剪高"),
+                      UUID=U["cr2"])],
+                 var("位置系数"), number_value="0.5", end_uuid=G_POS_END)
     body += [
-        act("is.workflow.actions.image.crop", WFInput=REPEAT_ITEM,
-            WFImageCropPosition="Custom",
-            WFImageCropX=var("X"), WFImageCropY=var("Y"),
-            WFImageCropWidth=var("裁剪宽"), WFImageCropHeight=var("裁剪高"),
-            UUID=U["cr"]),
-        act(SETV, WFVariableName="裁剪结果", WFInput=out(U["cr"], "Cropped Image")),
+        # If 结果即裁剪图(两个分支的裁剪输出都汇入 If Result)
+        act(SETV, WFVariableName="裁剪结果",
+            WFInput=out(G_POS_END, "If Result")),
     ]
     # ── 黑边遮幅(可选):长边的 4.5385%,横版加上下、竖版加左右 ──
     bars_branch = [
@@ -191,9 +205,14 @@ def crop_loop(save):
         act("is.workflow.actions.gettext", WFTextActionText=text(BLACK_PNG_B64), UUID=U["blk"]),
         act("is.workflow.actions.base64encode", WFEncodeMode="Decode",
             WFBase64LineBreakMode="None", WFInput=out(U["blk"], "Text"), UUID=U["blkd"]),
+        act("is.workflow.actions.round", WFInput=var("画布宽"),
+            WFRoundType="Left of Decimal", UUID=U["rw"]),
+        act("is.workflow.actions.round", WFInput=var("画布高"),
+            WFRoundType="Left of Decimal", UUID=U["rh"]),
         act("is.workflow.actions.image.resize",
-            WFInput=out(U["blkd"], "Base64 Decoded"),
-            WFImageResizeWidth=var("画布宽"), WFImageResizeHeight=var("画布高"),
+            WFInput=out(U["blkd"], "Base64 Encoded"),
+            WFImageResizeWidth=out(U["rw"], "Rounded Number"),
+            WFImageResizeHeight=out(U["rh"], "Rounded Number"),
             UUID=U["rs"]),
         act("is.workflow.actions.overlayimageonimage",
             WFInput=out(U["rs"], "Resized Image"),
