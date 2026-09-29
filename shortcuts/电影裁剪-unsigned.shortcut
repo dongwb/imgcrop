@@ -12,18 +12,23 @@
 				<key>GroupingIdentifier</key>
 				<string>11111111-1111-4111-8111-111111111111</string>
 				<key>WFCondition</key>
-				<string>Has Any Value</string>
+				<integer>100</integer>
 				<key>WFControlFlowMode</key>
 				<integer>0</integer>
 				<key>WFInput</key>
 				<dict>
-					<key>Value</key>
+					<key>Type</key>
+					<string>Variable</string>
+					<key>Variable</key>
 					<dict>
-						<key>Type</key>
-						<string>ExtensionInput</string>
+						<key>Value</key>
+						<dict>
+							<key>Type</key>
+							<string>ExtensionInput</string>
+						</dict>
+						<key>WFSerializationType</key>
+						<string>WFTextTokenAttachment</string>
 					</dict>
-					<key>WFSerializationType</key>
-					<string>WFTextTokenAttachment</string>
 				</dict>
 			</dict>
 		</dict>
@@ -62,6 +67,8 @@
 			<string>is.workflow.actions.selectphoto</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>UUID</key>
+				<string>0A000001-0000-4000-8000-000000000001</string>
 				<key>WFSelectMultiplePhotos</key>
 				<true/>
 			</dict>
@@ -71,6 +78,20 @@
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Photos</string>
+						<key>OutputUUID</key>
+						<string>0A000001-0000-4000-8000-000000000001</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>图片</string>
 			</dict>
@@ -91,6 +112,8 @@
 			<string>is.workflow.actions.count</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>UUID</key>
+				<string>0A000002-0000-4000-8000-000000000002</string>
 				<key>WFInput</key>
 				<dict>
 					<key>Value</key>
@@ -110,6 +133,20 @@
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Count</string>
+						<key>OutputUUID</key>
+						<string>0A000002-0000-4000-8000-000000000002</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>数量</string>
 			</dict>
@@ -119,6 +156,8 @@
 			<string>is.workflow.actions.list</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>UUID</key>
+				<string>0A000003-0000-4000-8000-000000000003</string>
 				<key>WFItems</key>
 				<array>
 					<dict>
@@ -141,6 +180,22 @@
 			<string>is.workflow.actions.statistics</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>UUID</key>
+				<string>0A000004-0000-4000-8000-000000000004</string>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>List</string>
+						<key>OutputUUID</key>
+						<string>0A000003-0000-4000-8000-000000000003</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFStatisticsOperation</key>
 				<string>Minimum</string>
 			</dict>
@@ -150,6 +205,20 @@
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Statistics</string>
+						<key>OutputUUID</key>
+						<string>0A000004-0000-4000-8000-000000000004</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>上限</string>
 			</dict>
@@ -159,6 +228,8 @@
 			<string>is.workflow.actions.getitemfromlist</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>UUID</key>
+				<string>0A000005-0000-4000-8000-000000000005</string>
 				<key>WFInput</key>
 				<dict>
 					<key>Value</key>
@@ -194,6 +265,20 @@
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Item from List</string>
+						<key>OutputUUID</key>
+						<string>0A000005-0000-4000-8000-000000000005</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>批量</string>
 			</dict>
@@ -236,11 +321,34 @@
 		</dict>
 		<dict>
 			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.number</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>UUID</key>
+				<string>0B000001-0000-4000-8000-000000000001</string>
+				<key>WFNumberActionNumber</key>
+				<real>2.71</real>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
 				<key>WFInput</key>
-				<real>2.71</real>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Number</string>
+						<key>OutputUUID</key>
+						<string>0B000001-0000-4000-8000-000000000001</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>比例</string>
 			</dict>
@@ -260,11 +368,34 @@
 		</dict>
 		<dict>
 			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.number</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>UUID</key>
+				<string>0B000002-0000-4000-8000-000000000002</string>
+				<key>WFNumberActionNumber</key>
+				<real>2.39</real>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
 				<key>WFInput</key>
-				<real>2.39</real>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Number</string>
+						<key>OutputUUID</key>
+						<string>0B000002-0000-4000-8000-000000000002</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>比例</string>
 			</dict>
@@ -284,11 +415,34 @@
 		</dict>
 		<dict>
 			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.number</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>UUID</key>
+				<string>0B000003-0000-4000-8000-000000000003</string>
+				<key>WFNumberActionNumber</key>
+				<real>1.7778</real>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
 				<key>WFInput</key>
-				<real>1.7778</real>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Number</string>
+						<key>OutputUUID</key>
+						<string>0B000003-0000-4000-8000-000000000003</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>比例</string>
 			</dict>
@@ -308,11 +462,34 @@
 		</dict>
 		<dict>
 			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.number</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>UUID</key>
+				<string>0B000004-0000-4000-8000-000000000004</string>
+				<key>WFNumberActionNumber</key>
+				<real>1.3333</real>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
 				<key>WFInput</key>
-				<real>1.3333</real>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Number</string>
+						<key>OutputUUID</key>
+						<string>0B000004-0000-4000-8000-000000000004</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>比例</string>
 			</dict>
@@ -332,11 +509,34 @@
 		</dict>
 		<dict>
 			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.number</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>UUID</key>
+				<string>0B000005-0000-4000-8000-000000000005</string>
+				<key>WFNumberActionNumber</key>
+				<real>1.0</real>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
 				<key>WFInput</key>
-				<integer>1</integer>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Number</string>
+						<key>OutputUUID</key>
+						<string>0B000005-0000-4000-8000-000000000005</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>比例</string>
 			</dict>
@@ -356,11 +556,34 @@
 		</dict>
 		<dict>
 			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.number</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>UUID</key>
+				<string>0B000006-0000-4000-8000-000000000006</string>
+				<key>WFNumberActionNumber</key>
+				<real>0.75</real>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
 				<key>WFInput</key>
-				<real>0.75</real>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Number</string>
+						<key>OutputUUID</key>
+						<string>0B000006-0000-4000-8000-000000000006</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>比例</string>
 			</dict>
@@ -380,11 +603,34 @@
 		</dict>
 		<dict>
 			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.number</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>UUID</key>
+				<string>0B000007-0000-4000-8000-000000000007</string>
+				<key>WFNumberActionNumber</key>
+				<real>0.5625</real>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
 				<key>WFInput</key>
-				<real>0.5625</real>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Number</string>
+						<key>OutputUUID</key>
+						<string>0B000007-0000-4000-8000-000000000007</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>比例</string>
 			</dict>
@@ -428,6 +674,8 @@
 			<string>is.workflow.actions.properties.images</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>UUID</key>
+				<string>0A000006-0000-4000-8000-000000000006</string>
 				<key>WFContentItemPropertyName</key>
 				<string>Width</string>
 				<key>WFInput</key>
@@ -449,6 +697,20 @@
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Width</string>
+						<key>OutputUUID</key>
+						<string>0A000006-0000-4000-8000-000000000006</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>图宽</string>
 			</dict>
@@ -458,6 +720,8 @@
 			<string>is.workflow.actions.properties.images</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>UUID</key>
+				<string>0A000007-0000-4000-8000-000000000007</string>
 				<key>WFContentItemPropertyName</key>
 				<string>Height</string>
 				<key>WFInput</key>
@@ -479,6 +743,20 @@
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Height</string>
+						<key>OutputUUID</key>
+						<string>0A000007-0000-4000-8000-000000000007</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>图高</string>
 			</dict>
@@ -488,6 +766,8 @@
 			<string>is.workflow.actions.math</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>UUID</key>
+				<string>0A000008-0000-4000-8000-000000000008</string>
 				<key>WFInput</key>
 				<dict>
 					<key>Value</key>
@@ -521,6 +801,20 @@
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Calculation Result</string>
+						<key>OutputUUID</key>
+						<string>0A000008-0000-4000-8000-000000000008</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>目标宽</string>
 			</dict>
@@ -530,6 +824,8 @@
 			<string>is.workflow.actions.math</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>UUID</key>
+				<string>0A000009-0000-4000-8000-000000000009</string>
 				<key>WFInput</key>
 				<dict>
 					<key>Value</key>
@@ -563,49 +859,91 @@
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Calculation Result</string>
+						<key>OutputUUID</key>
+						<string>0A000009-0000-4000-8000-000000000009</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>目标高</string>
 			</dict>
 		</dict>
 		<dict>
 			<key>WFWorkflowActionIdentifier</key>
-			<string>is.workflow.actions.list</string>
+			<string>is.workflow.actions.math</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
-				<key>WFItems</key>
-				<array>
+				<key>UUID</key>
+				<string>0A00000A-0000-4000-8000-00000000000A</string>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
 					<dict>
-						<key>Value</key>
-						<dict>
-							<key>Type</key>
-							<string>Variable</string>
-							<key>VariableName</key>
-							<string>图宽</string>
-						</dict>
-						<key>WFSerializationType</key>
-						<string>WFTextTokenAttachment</string>
+						<key>Type</key>
+						<string>Variable</string>
+						<key>VariableName</key>
+						<string>图宽</string>
 					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
+				<key>WFMathOperand</key>
+				<dict>
+					<key>Value</key>
 					<dict>
-						<key>Value</key>
-						<dict>
-							<key>Type</key>
-							<string>Variable</string>
-							<key>VariableName</key>
-							<string>目标宽</string>
-						</dict>
-						<key>WFSerializationType</key>
-						<string>WFTextTokenAttachment</string>
+						<key>Type</key>
+						<string>Variable</string>
+						<key>VariableName</key>
+						<string>目标宽</string>
 					</dict>
-				</array>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
+				<key>WFMathOperation</key>
+				<string>-</string>
 			</dict>
 		</dict>
 		<dict>
 			<key>WFWorkflowActionIdentifier</key>
-			<string>is.workflow.actions.statistics</string>
+			<string>is.workflow.actions.conditional</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
-				<key>WFStatisticsOperation</key>
-				<string>Minimum</string>
+				<key>GroupingIdentifier</key>
+				<string>44444444-4444-4444-8444-444444444444</string>
+				<key>WFCondition</key>
+				<integer>0</integer>
+				<key>WFControlFlowMode</key>
+				<integer>0</integer>
+				<key>WFInput</key>
+				<dict>
+					<key>Type</key>
+					<string>Variable</string>
+					<key>Variable</key>
+					<dict>
+						<key>Value</key>
+						<dict>
+							<key>OutputName</key>
+							<string>Calculation Result</string>
+							<key>OutputUUID</key>
+							<string>0A00000A-0000-4000-8000-00000000000A</string>
+							<key>Type</key>
+							<string>ActionOutput</string>
+						</dict>
+						<key>WFSerializationType</key>
+						<string>WFTextTokenAttachment</string>
+					</dict>
+				</dict>
+				<key>WFNumberValue</key>
+				<string>0</string>
 			</dict>
 		</dict>
 		<dict>
@@ -613,49 +951,31 @@
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>Type</key>
+						<string>Variable</string>
+						<key>VariableName</key>
+						<string>图宽</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>裁剪宽</string>
 			</dict>
 		</dict>
 		<dict>
 			<key>WFWorkflowActionIdentifier</key>
-			<string>is.workflow.actions.list</string>
+			<string>is.workflow.actions.conditional</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
-				<key>WFItems</key>
-				<array>
-					<dict>
-						<key>Value</key>
-						<dict>
-							<key>Type</key>
-							<string>Variable</string>
-							<key>VariableName</key>
-							<string>图高</string>
-						</dict>
-						<key>WFSerializationType</key>
-						<string>WFTextTokenAttachment</string>
-					</dict>
-					<dict>
-						<key>Value</key>
-						<dict>
-							<key>Type</key>
-							<string>Variable</string>
-							<key>VariableName</key>
-							<string>目标高</string>
-						</dict>
-						<key>WFSerializationType</key>
-						<string>WFTextTokenAttachment</string>
-					</dict>
-				</array>
-			</dict>
-		</dict>
-		<dict>
-			<key>WFWorkflowActionIdentifier</key>
-			<string>is.workflow.actions.statistics</string>
-			<key>WFWorkflowActionParameters</key>
-			<dict>
-				<key>WFStatisticsOperation</key>
-				<string>Minimum</string>
+				<key>GroupingIdentifier</key>
+				<string>44444444-4444-4444-8444-444444444444</string>
+				<key>WFControlFlowMode</key>
+				<integer>1</integer>
 			</dict>
 		</dict>
 		<dict>
@@ -663,8 +983,164 @@
 			<string>is.workflow.actions.setvariable</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>Type</key>
+						<string>Variable</string>
+						<key>VariableName</key>
+						<string>目标宽</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
+				<key>WFVariableName</key>
+				<string>裁剪宽</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.conditional</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>GroupingIdentifier</key>
+				<string>44444444-4444-4444-8444-444444444444</string>
+				<key>WFControlFlowMode</key>
+				<integer>2</integer>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.math</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>UUID</key>
+				<string>0A00000B-0000-4000-8000-00000000000B</string>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>Type</key>
+						<string>Variable</string>
+						<key>VariableName</key>
+						<string>图高</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
+				<key>WFMathOperand</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>Type</key>
+						<string>Variable</string>
+						<key>VariableName</key>
+						<string>目标高</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
+				<key>WFMathOperation</key>
+				<string>-</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.conditional</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>GroupingIdentifier</key>
+				<string>55555555-5555-4555-8555-555555555555</string>
+				<key>WFCondition</key>
+				<integer>0</integer>
+				<key>WFControlFlowMode</key>
+				<integer>0</integer>
+				<key>WFInput</key>
+				<dict>
+					<key>Type</key>
+					<string>Variable</string>
+					<key>Variable</key>
+					<dict>
+						<key>Value</key>
+						<dict>
+							<key>OutputName</key>
+							<string>Calculation Result</string>
+							<key>OutputUUID</key>
+							<string>0A00000B-0000-4000-8000-00000000000B</string>
+							<key>Type</key>
+							<string>ActionOutput</string>
+						</dict>
+						<key>WFSerializationType</key>
+						<string>WFTextTokenAttachment</string>
+					</dict>
+				</dict>
+				<key>WFNumberValue</key>
+				<string>0</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.setvariable</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>Type</key>
+						<string>Variable</string>
+						<key>VariableName</key>
+						<string>图高</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
 				<key>WFVariableName</key>
 				<string>裁剪高</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.conditional</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>GroupingIdentifier</key>
+				<string>55555555-5555-4555-8555-555555555555</string>
+				<key>WFControlFlowMode</key>
+				<integer>1</integer>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.setvariable</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>Type</key>
+						<string>Variable</string>
+						<key>VariableName</key>
+						<string>目标高</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
+				<key>WFVariableName</key>
+				<string>裁剪高</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>WFWorkflowActionIdentifier</key>
+			<string>is.workflow.actions.conditional</string>
+			<key>WFWorkflowActionParameters</key>
+			<dict>
+				<key>GroupingIdentifier</key>
+				<string>55555555-5555-4555-8555-555555555555</string>
+				<key>WFControlFlowMode</key>
+				<integer>2</integer>
 			</dict>
 		</dict>
 		<dict>
@@ -672,6 +1148,8 @@
 			<string>is.workflow.actions.image.crop</string>
 			<key>WFWorkflowActionParameters</key>
 			<dict>
+				<key>UUID</key>
+				<string>0A00000C-0000-4000-8000-00000000000C</string>
 				<key>WFImageCropHeight</key>
 				<dict>
 					<key>Value</key>
@@ -716,7 +1194,22 @@
 			<key>WFWorkflowActionIdentifier</key>
 			<string>is.workflow.actions.savetocameraroll</string>
 			<key>WFWorkflowActionParameters</key>
-			<dict/>
+			<dict>
+				<key>WFInput</key>
+				<dict>
+					<key>Value</key>
+					<dict>
+						<key>OutputName</key>
+						<string>Cropped Image</string>
+						<key>OutputUUID</key>
+						<string>0A00000C-0000-4000-8000-00000000000C</string>
+						<key>Type</key>
+						<string>ActionOutput</string>
+					</dict>
+					<key>WFSerializationType</key>
+					<string>WFTextTokenAttachment</string>
+				</dict>
+			</dict>
 		</dict>
 		<dict>
 			<key>WFWorkflowActionIdentifier</key>
