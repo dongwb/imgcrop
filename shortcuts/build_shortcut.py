@@ -2,7 +2,7 @@
 """生成「电影裁剪」iOS 快捷指令(plist → 签名)。
 
 用法: python3 build_shortcut.py
-产物: 电影裁剪.shortcut(正式版,已签名)、电影裁剪-测试.shortcut(固定 2.71,用于 CLI 实测)
+产物: 电影裁剪.shortcut(正式版,已签名)、电影裁剪-测试.shortcut(固定参数,用于 CLI 实测)
 
 序列化规则的权威依据见 memory: shortcut-serialization-rules
 - 条件动作: WFCondition 为整数(0=< 4== 100=有任何值), WFNumberValue 为字符串,
@@ -10,7 +10,7 @@
 - 动作输出引用: ActionOutput + OutputUUID + OutputName 三件套
 - 省略 WFInput = 空输入(无隐式上一步传递)
 - 数字入变量必须经「数字」动作中转
-- 统计动作在循环内不工作 → 循环内取最小值用 If 比较
+- 统计动作在循环内不工作 → 循环内取 min/max 用 If 比较
 """
 import plistlib
 import subprocess
@@ -29,6 +29,11 @@ def cond_input(inner):
     """条件动作 WFInput 的嵌套包装"""
     return {"Type": "Variable", "Variable": inner}
 
+def text(s):
+    """文本内容必须是 token 包装格式(裸字符串会得到空文本)"""
+    return {"WFSerializationType": "WFTextTokenString",
+            "Value": {"string": s, "attachmentsByRange": {}}}
+
 SHORTCUT_INPUT = att("ExtensionInput")
 REPEAT_ITEM = var("Repeat Item")
 
@@ -42,51 +47,76 @@ SETV = "is.workflow.actions.setvariable"
 MATH = "is.workflow.actions.math"
 NUMBER = "is.workflow.actions.number"
 
-G_IF, G_MENU, G_REP = ("11111111-1111-4111-8111-111111111111",
-                       "22222222-2222-4222-8222-222222222222",
-                       "33333333-3333-4333-8333-333333333333")
+G_IF, G_REP = ("11111111-1111-4111-8111-111111111111",
+               "33333333-3333-4333-8333-333333333333")
+G_MENU1, G_MENU2, G_MENU3 = ("22222222-2222-4222-8222-22222222222a",
+                             "22222222-2222-4222-8222-22222222222b",
+                             "22222222-2222-4222-8222-22222222222c")
 G_ORIENT = "66666666-6666-4666-8666-666666666666"
 G_IFW, G_IFH = ("44444444-4444-4444-8444-444444444444",
                 "55555555-5555-4555-8555-555555555555")
+G_BARS1, G_BARS2, G_BARSON = ("77777777-7777-4777-8777-77777777777a",
+                              "77777777-7777-4777-8777-77777777777b",
+                              "77777777-7777-4777-8777-77777777777c")
 
-# 产出动作 UUID(引用用)
-U = {k: f"0A0000{i:02X}-0000-4000-8000-0000000000{i:02X}" for i, k in enumerate(
-    ["sel", "c", "l1", "s1", "g", "w", "h", "o", "n1", "inv",
-     "m1", "m2", "d1", "d2", "cr"], start=1)}
-# 菜单各比例对应的 Number 动作 UUID
-U_NUM = {i: f"0B0000{i:02X}-0000-4000-8000-0000000000{i:02X}" for i in range(1, 9)}
+# 黑边遮幅比例(与网页版 BAR_PCT_DEFAULT 一致:长边的 4.5385%)
+BAR_RATIO = 0.045385
+# 2x2 纯黑 PNG(遮幅底图)
+BLACK_PNG_B64 = ("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAC0lEQVR4nGNg"
+                 "QAYAAA4AAamRc7EAAAAASUVORK5CYII=")
+
+U = {k: f"0A0000{i:02X}-0000-4000-8000-0000000000{i:02X}" for i, k in enumerate([
+    "sel", "c", "l1", "s1", "g", "w", "h", "o", "n1", "inv", "m1", "m2",
+    "d1", "d2", "dx", "dy", "px", "py", "cr", "dl", "bar", "bar2", "b2n",
+    "b2m", "pw", "ph", "blk", "blkd", "rs", "ov"], start=1)}
+U_NUM = {i: f"0B0000{i:02X}-0000-4000-8000-0000000000{i:02X}" for i in range(1, 14)}
 
 RATIOS = [("电影画幅 2.71:1", 2.71), ("宽银幕 2.39:1", 2.39), ("16:9", 1.7778),
           ("4:3", 1.3333), ("1:1 正方形", 1.0), ("3:4", 0.75), ("9:16 IG快拍", 0.5625)]
+POSITIONS = [("居中", 0.5), ("靠上(竖版为靠左)", 0.0), ("靠下(竖版为靠右)", 1.0)]
+BARS = [("添加黑边遮幅", 1), ("不加", 0)]
 
 
-def set_ratio(value, uuid):
-    """比例入变量必须经「数字」动作中转(直接塞 real 会得到空值)"""
+def set_num(varname, value, uuid):
+    """数字入变量必须经「数字」动作中转(直接塞 real 会得到空值)"""
     return [act(NUMBER, WFNumberActionNumber=value, UUID=uuid),
-            act(SETV, WFVariableName="比例", WFInput=out(uuid, "Number"))]
+            act(SETV, WFVariableName=varname, WFInput=out(uuid, "Number"))]
 
 
-def if_less_than_zero(input_att, gid, true_actions, false_actions):
+def cond(condition, gid, true_actions, false_actions, input_att, number_value=None):
     """现代条件格式: 整数条件 + 字符串数值 + 嵌套输入"""
-    return ([act(IF, WFControlFlowMode=0, GroupingIdentifier=gid,
-                 WFCondition=0, WFNumberValue="0", WFInput=cond_input(input_att))]
+    p = dict(WFControlFlowMode=0, GroupingIdentifier=gid,
+             WFCondition=condition, WFInput=cond_input(input_att))
+    if number_value is not None:
+        p["WFNumberValue"] = number_value
+    return ([act(IF, **p)]
             + true_actions
             + [act(IF, WFControlFlowMode=1, GroupingIdentifier=gid)]
             + false_actions
             + [act(IF, WFControlFlowMode=2, GroupingIdentifier=gid)])
 
 
+def if_less_zero(input_att, gid, true_actions, false_actions):
+    return cond(0, gid, true_actions, false_actions, input_att, number_value="0")
+
+
+def math_to(op, a, b, result, uuid):
+    """result = a op b"""
+    return [act(MATH, WFMathOperation=op, WFInput=var(a), WFMathOperand=var(b), UUID=uuid),
+            act(SETV, WFVariableName=result, WFInput=out(uuid, "Calculation Result"))]
+
+
 def minvar(result, a, b, gid, duuid):
     """result = min(a, b) —— 统计动作在循环内不工作,用 If 比较差值"""
     return ([act(MATH, WFMathOperation="-", WFInput=var(a),
                  WFMathOperand=var(b), UUID=duuid)]
-            + if_less_than_zero(out(duuid, "Calculation Result"), gid,
-                                [act(SETV, WFVariableName=result, WFInput=var(a))],
-                                [act(SETV, WFVariableName=result, WFInput=var(b))]))
+            + if_less_zero(out(duuid, "Calculation Result"), gid,
+                           [act(SETV, WFVariableName=result, WFInput=var(a))],
+                           [act(SETV, WFVariableName=result, WFInput=var(b))]))
 
 
 def crop_loop(save):
-    """逐张:横版用所选比例,竖版自动用倒数比例,等比最大居中裁剪"""
+    """逐张:横竖自适应比例 + 位置偏移 + 可选黑边遮幅"""
     body = [
         act(REPEAT, WFControlFlowMode=0, GroupingIdentifier=G_REP, WFInput=var("批量")),
         act("is.workflow.actions.properties.images", WFContentItemPropertyName="Width",
@@ -99,7 +129,7 @@ def crop_loop(save):
         act(MATH, WFMathOperation="-", WFInput=var("图宽"),
             WFMathOperand=var("图高"), UUID=U["o"]),
     ]
-    body += if_less_than_zero(
+    body += if_less_zero(
         out(U["o"], "Calculation Result"), G_ORIENT,
         true_actions=[  # 竖版
             act(NUMBER, WFNumberActionNumber=1, UUID=U["n1"]),
@@ -110,23 +140,75 @@ def crop_loop(save):
         false_actions=[  # 横版/方形
             act(SETV, WFVariableName="实际比例", WFInput=var("比例")),
         ])
-    body += [
-        act(MATH, WFMathOperation="×", WFInput=var("图高"),
-            WFMathOperand=var("实际比例"), UUID=U["m1"]),
-        act(SETV, WFVariableName="目标宽", WFInput=out(U["m1"], "Calculation Result")),
-        act(MATH, WFMathOperation="÷", WFInput=var("图宽"),
-            WFMathOperand=var("实际比例"), UUID=U["m2"]),
-        act(SETV, WFVariableName="目标高", WFInput=out(U["m2"], "Calculation Result")),
-    ]
+    body += math_to("×", "图高", "实际比例", "目标宽", U["m1"])
+    body += math_to("÷", "图宽", "实际比例", "目标高", U["m2"])
     body += minvar("裁剪宽", "图宽", "目标宽", G_IFW, U["d1"])
     body += minvar("裁剪高", "图高", "目标高", G_IFH, U["d2"])
-    body.append(act("is.workflow.actions.image.crop", WFInput=REPEAT_ITEM,
-                    WFImageCropPosition="Center",
-                    WFImageCropWidth=var("裁剪宽"), WFImageCropHeight=var("裁剪高"),
-                    UUID=U["cr"]))
+    # ── 位置:X=(图宽-裁剪宽)×系数, Y=(图高-裁剪高)×系数(横竖通用) ──
+    body += math_to("-", "图宽", "裁剪宽", "差X", U["dx"])
+    body += math_to("-", "图高", "裁剪高", "差Y", U["dy"])
+    body += math_to("×", "差X", "位置系数", "X", U["px"])
+    body += math_to("×", "差Y", "位置系数", "Y", U["py"])
+    body += [
+        act("is.workflow.actions.image.crop", WFInput=REPEAT_ITEM,
+            WFImageCropPosition="Custom",
+            WFImageCropX=var("X"), WFImageCropY=var("Y"),
+            WFImageCropWidth=var("裁剪宽"), WFImageCropHeight=var("裁剪高"),
+            UUID=U["cr"]),
+        act(SETV, WFVariableName="裁剪结果", WFInput=out(U["cr"], "Cropped Image")),
+    ]
+    # ── 黑边遮幅(可选):长边的 4.5385%,横版加上下、竖版加左右 ──
+    bars_branch = [
+        act(MATH, WFMathOperation="-", WFInput=var("裁剪宽"),
+            WFMathOperand=var("裁剪高"), UUID=U["dl"]),
+    ]
+    # 长边 = max(裁剪宽, 裁剪高)
+    bars_branch += if_less_zero(
+        out(U["dl"], "Calculation Result"), G_BARS1,
+        [act(SETV, WFVariableName="长边", WFInput=var("裁剪高"))],
+        [act(SETV, WFVariableName="长边", WFInput=var("裁剪宽"))])
+    bars_branch += [
+        act(NUMBER, WFNumberActionNumber=BAR_RATIO, UUID=U["bar"]),
+        act(MATH, WFMathOperation="×", WFInput=var("长边"),
+            WFMathOperand=out(U["bar"], "Number"), UUID=U["bar2"]),
+        act(SETV, WFVariableName="边条", WFInput=out(U["bar2"], "Calculation Result")),
+        act(NUMBER, WFNumberActionNumber=2, UUID=U["b2n"]),
+        act(MATH, WFMathOperation="×", WFInput=var("边条"),
+            WFMathOperand=out(U["b2n"], "Number"), UUID=U["b2m"]),
+        act(SETV, WFVariableName="双边", WFInput=out(U["b2m"], "Calculation Result")),
+    ]
+    bars_branch += math_to("+", "裁剪宽", "双边", "竖画布宽", U["pw"])   # 竖版:左右加边
+    bars_branch += math_to("+", "裁剪高", "双边", "横画布高", U["ph"])   # 横版:上下加边
+    # 画布尺寸按横竖取
+    bars_branch += if_less_zero(
+        out(U["dl"], "Calculation Result"), G_BARS2,
+        [act(SETV, WFVariableName="画布宽", WFInput=var("竖画布宽")),
+         act(SETV, WFVariableName="画布高", WFInput=var("裁剪高"))],
+        [act(SETV, WFVariableName="画布宽", WFInput=var("裁剪宽")),
+         act(SETV, WFVariableName="画布高", WFInput=var("横画布高"))])
+    bars_branch += [
+        # 黑底图: base64 → 解码 → 缩放到画布 → 叠加裁剪结果(居中)
+        act("is.workflow.actions.gettext", WFTextActionText=text(BLACK_PNG_B64), UUID=U["blk"]),
+        act("is.workflow.actions.base64encode", WFEncodeMode="Decode",
+            WFBase64LineBreakMode="None", WFInput=out(U["blk"], "Text"), UUID=U["blkd"]),
+        act("is.workflow.actions.image.resize",
+            WFInput=out(U["blkd"], "Base64 Decoded"),
+            WFImageResizeWidth=var("画布宽"), WFImageResizeHeight=var("画布高"),
+            UUID=U["rs"]),
+        act("is.workflow.actions.overlayimageonimage",
+            WFInput=out(U["rs"], "Resized Image"),
+            WFImage=var("裁剪结果"),
+            WFShouldShowImageEditor=False, WFImagePosition="Center",
+            UUID=U["ov"]),
+        act(SETV, WFVariableName="成品", WFInput=out(U["ov"], "Overlaid Image")),
+    ]
     if save:
-        body.append(act("is.workflow.actions.savetocameraroll",
-                        WFInput=out(U["cr"], "Cropped Image")))
+        body += cond(4, G_BARSON, bars_branch,
+                     [act(SETV, WFVariableName="成品", WFInput=var("裁剪结果"))],
+                     var("遮幅开关"), number_value="1")
+        body.append(act("is.workflow.actions.savetocameraroll", WFInput=var("成品")))
+    else:
+        body += bars_branch  # 测试模式:始终加遮幅,以叠加动作结尾,结果即循环输出
     body.append(act(REPEAT, WFControlFlowMode=2, GroupingIdentifier=G_REP))
     return body
 
@@ -146,14 +228,14 @@ def limit27():
     ]
 
 
-def menu():
-    a = [act(MENU, WFControlFlowMode=0, GroupingIdentifier=G_MENU,
-             WFMenuPrompt="选择裁剪比例", WFMenuItems=[t for t, _ in RATIOS])]
-    for i, (title, value) in enumerate(RATIOS, start=1):
-        a.append(act(MENU, WFControlFlowMode=1, GroupingIdentifier=G_MENU,
+def menu(prompt, items, varname, gid, uuids):
+    a = [act(MENU, WFControlFlowMode=0, GroupingIdentifier=gid,
+             WFMenuPrompt=prompt, WFMenuItems=[t for t, _ in items])]
+    for (title, value), uuid in zip(items, uuids):
+        a.append(act(MENU, WFControlFlowMode=1, GroupingIdentifier=gid,
                      WFMenuItemTitle=title))
-        a.extend(set_ratio(value, U_NUM[i]))
-    a.append(act(MENU, WFControlFlowMode=2, GroupingIdentifier=G_MENU))
+        a.extend(set_num(varname, value, uuid))
+    a.append(act(MENU, WFControlFlowMode=2, GroupingIdentifier=gid))
     return a
 
 
@@ -181,9 +263,18 @@ def build(full: bool) -> list:
             act(SETV, WFVariableName="图片", WFInput=out(U["sel"], "Photos")),
             act(IF, WFControlFlowMode=2, GroupingIdentifier=G_IF),
         ]
-        return head + limit27() + menu() + crop_loop(save=True)
+        return (head + limit27()
+                + menu("选择裁剪比例", RATIOS, "比例", G_MENU1, [U_NUM[i] for i in range(1, 8)])
+                + menu("选择裁剪位置", POSITIONS, "位置系数", G_MENU2, [U_NUM[8], U_NUM[9], U_NUM[10]])
+                + menu("是否添加黑边遮幅", BARS, "遮幅开关", G_MENU3, [U_NUM[11], U_NUM[12]])
+                + crop_loop(save=True))
+    # 测试版:比例2.71 + 位置靠下/靠右(系数1) + 加遮幅,输出结果供 CLI 校验
     return ([act(SETV, WFVariableName="图片", WFInput=SHORTCUT_INPUT)]
-            + limit27() + set_ratio(2.71, U_NUM[8]) + crop_loop(save=False))
+            + limit27()
+            + set_num("比例", 2.71, U_NUM[1])
+            + set_num("位置系数", 1, U_NUM[2])
+            + set_num("遮幅开关", 1, U_NUM[3])
+            + crop_loop(save=False))
 
 
 def main():
