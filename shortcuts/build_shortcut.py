@@ -63,9 +63,16 @@ G_BARS1, G_BARS2, G_BARSON = ("77777777-7777-4777-8777-77777777777a",
 
 # 黑边遮幅比例(与网页版 BAR_PCT_DEFAULT 一致:长边的 4.5385%)
 BAR_RATIO = 0.045385
-# 2x2 纯黑 PNG(遮幅底图)
-BLACK_PNG_B64 = ("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAC0lEQVR4nGNg"
-                 "QAYAAA4AAamRc7EAAAAASUVORK5CYII=")
+def make_black_b64(pixels=8192):
+    """生成大尺寸纯黑 PNG 的 base64(构建期一次)。resize 原子已证实不可用,
+    改为内嵌大黑图 → 用已验证的「裁剪」裁到画布尺寸。"""
+    import base64, io
+    from PIL import Image
+    buf = io.BytesIO()
+    Image.new("RGB", (pixels, pixels), (0, 0, 0)).save(buf, "PNG", optimize=True)
+    return base64.b64encode(buf.getvalue()).decode()
+
+BLACK_PNG_B64 = make_black_b64()
 
 U = {k: f"0A0000{i:02X}-0000-4000-8000-0000000000{i:02X}" for i, k in enumerate([
     "sel", "c", "l1", "s1", "g", "w", "h", "o", "n1", "inv", "m1", "m2",
@@ -76,7 +83,6 @@ U_NUM = {i: f"0B0000{i:02X}-0000-4000-8000-0000000000{i:02X}" for i in range(1, 
 RATIOS = [("电影画幅 2.71:1", 2.71), ("宽银幕 2.39:1", 2.39), ("16:9", 1.7778),
           ("4:3", 1.3333), ("1:1 正方形", 1.0), ("3:4", 0.75), ("9:16 IG快拍", 0.5625)]
 POSITIONS = [("居中", 0.5), ("靠上(竖版为靠左)", 0.0), ("靠下(竖版为靠右)", 1.0)]
-BARS = [("添加黑边遮幅", 1), ("不加", 0)]
 
 
 def set_num(varname, value, uuid):
@@ -121,7 +127,7 @@ def minvar(result, a, b, gid, duuid):
                            [act(SETV, WFVariableName=result, WFInput=var(b))]))
 
 
-def crop_loop(save):
+def crop_loop(save, bars):
     """逐张:横竖自适应比例 + 位置偏移 + 可选黑边遮幅"""
     body = [
         act(REPEAT, WFControlFlowMode=0, GroupingIdentifier=G_REP, WFInput=var("批量")),
@@ -211,34 +217,28 @@ def crop_loop(save):
         [act(SETV, WFVariableName="画布宽", WFInput=var("裁剪宽")),
          act(SETV, WFVariableName="画布高", WFInput=var("横画布高"))])
     bars_branch += [
-        # 黑底图: base64 → 解码 → 缩放到画布 → 叠加裁剪结果(居中)
+        # 黑底图: base64 → 解码 → 裁剪到画布尺寸(裁剪是已验证原子) → 叠加裁剪结果(居中)
         act("is.workflow.actions.gettext", WFTextActionText=text(BLACK_PNG_B64), UUID=U["blk"]),
         act("is.workflow.actions.base64encode", WFEncodeMode="Decode",
             WFBase64LineBreakMode="None", WFInput=out(U["blk"], "Text"), UUID=U["blkd"]),
-        act("is.workflow.actions.round", WFInput=var("画布宽"),
-            WFRoundType="Left of Decimal", UUID=U["rw"]),
-        act("is.workflow.actions.round", WFInput=var("画布高"),
-            WFRoundType="Left of Decimal", UUID=U["rh"]),
-        act("is.workflow.actions.image.resize",
+        act("is.workflow.actions.image.crop",
             WFInput=out(U["blkd"], "Base64 Encoded"),
-            WFImageResizeWidth=out(U["rw"], "Rounded Number"),
-            WFImageResizeHeight=out(U["rh"], "Rounded Number"),
+            WFImageCropPosition="Center",
+            WFImageCropWidth=var("画布宽"), WFImageCropHeight=var("画布高"),
             UUID=U["rs"]),
         act("is.workflow.actions.overlayimageonimage",
-            WFInput=out(U["rs"], "Resized Image"),
+            WFInput=out(U["rs"], "Cropped Image"),
             WFImage=var("裁剪结果"),
             WFShouldShowImageEditor=False, WFImagePosition="Center",
             UUID=U["ov"]),
         act(SETV, WFVariableName="成品", WFInput=out(U["ov"], "Overlaid Image")),
     ]
-    if save:
-        body += cond(0, G_BARSON,
-                     [act(SETV, WFVariableName="成品", WFInput=var("裁剪结果"))],
-                     bars_branch,
-                     var("遮幅开关"), number_value="0.5")
-        body.append(act("is.workflow.actions.savetocameraroll", WFInput=var("成品")))
+    if bars:
+        body += bars_branch
     else:
-        body += bars_branch  # 测试模式:始终加遮幅,以叠加动作结尾,结果即循环输出
+        body.append(act(SETV, WFVariableName="成品", WFInput=var("裁剪结果")))
+    if save:
+        body.append(act("is.workflow.actions.savetocameraroll", WFInput=var("成品")))
     body.append(act(REPEAT, WFControlFlowMode=2, GroupingIdentifier=G_REP))
     return body
 
@@ -282,8 +282,8 @@ BASE = {
 }
 
 
-def build(full: bool) -> list:
-    if full:
+def build(kind: str) -> list:
+    if kind in ("full", "bars"):
         head = [
             act(IF, WFControlFlowMode=0, GroupingIdentifier=G_IF,
                 WFCondition=100, WFInput=cond_input(SHORTCUT_INPUT)),  # 有任何值
@@ -296,21 +296,19 @@ def build(full: bool) -> list:
         return (head + limit27()
                 + menu("选择裁剪比例", RATIOS, "比例", G_MENU1, [U_NUM[i] for i in range(1, 8)])
                 + menu("选择裁剪位置", POSITIONS, "位置系数", G_MENU2, [U_NUM[8], U_NUM[9], U_NUM[10]])
-                + menu("是否添加黑边遮幅", BARS, "遮幅开关", G_MENU3, [U_NUM[11], U_NUM[12]])
-                + crop_loop(save=True))
+                + crop_loop(save=True, bars=(kind == "bars")))
     # 测试版:比例2.71 + 位置靠下/靠右(系数1) + 加遮幅,输出结果供 CLI 校验
     return ([act(SETV, WFVariableName="图片", WFInput=SHORTCUT_INPUT)]
             + limit27()
             + set_num("比例", 2.71, U_NUM[1])
             + set_num("位置系数", 1, U_NUM[2])
-            + set_num("遮幅开关", 1, U_NUM[3])
-            + crop_loop(save=False))
+            + crop_loop(save=False, bars=True))
 
 
 def main():
     import os
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    for name, full in [("电影裁剪", True), ("电影裁剪-测试", False)]:
+    for name, full in [("电影裁剪", "full"), ("电影裁剪遮幅", "bars"), ("电影裁剪-测试", "test")]:
         actions = build(full)
         unsigned = f"{name}-unsigned.shortcut"
         signed = f"{name}.shortcut"
