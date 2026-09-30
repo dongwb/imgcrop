@@ -55,8 +55,8 @@ G_MENU1, G_MENU2, G_MENU3 = ("22222222-2222-4222-8222-22222222222a",
 G_ORIENT = "66666666-6666-4666-8666-666666666666"
 G_IFW, G_IFH = ("44444444-4444-4444-8444-444444444444",
                 "55555555-5555-4555-8555-555555555555")
-G_POS, G_POS_END = ("88888888-8888-4888-8888-888888888888",
-                    "88888888-8888-4888-8888-88888888888e")
+G_POS, G_POS2 = ("88888888-8888-4888-8888-888888888888",
+                  "88888888-8888-4888-8888-888888888887")
 G_BARS1, G_BARS2, G_BARSON = ("77777777-7777-4777-8777-77777777777a",
                               "77777777-7777-4777-8777-77777777777b",
                               "77777777-7777-4777-8777-77777777777c")
@@ -69,7 +69,7 @@ BLACK_PNG_B64 = ("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAC0lEQVR4nGNg"
 
 U = {k: f"0A0000{i:02X}-0000-4000-8000-0000000000{i:02X}" for i, k in enumerate([
     "sel", "c", "l1", "s1", "g", "w", "h", "o", "n1", "inv", "m1", "m2",
-    "d1", "d2", "dx", "dy", "px", "py", "cr", "cr2", "dl", "bar", "bar2",
+    "d1", "d2", "dx", "dy", "px", "py", "cr", "cr2", "cr3", "dl", "bar", "bar2",
     "b2n", "b2m", "pw", "ph", "rw", "rh", "blk", "blkd", "rs", "ov"], start=1)}
 U_NUM = {i: f"0B0000{i:02X}-0000-4000-8000-0000000000{i:02X}" for i in range(1, 14)}
 
@@ -150,27 +150,37 @@ def crop_loop(save):
     body += math_to("÷", "图宽", "实际比例", "目标高", U["m2"])
     body += minvar("裁剪宽", "图宽", "目标宽", G_IFW, U["d1"])
     body += minvar("裁剪高", "图高", "目标高", G_IFH, U["d2"])
-    # ── 位置:居中走已验证的 Center 裁剪;靠上/靠下才用自定义坐标 ──
+    # ── 位置:三档,全部用已验证的「小于」条件(cond 4「等于」未验证,曾致全灭) ──
     body += math_to("-", "图宽", "裁剪宽", "差X", U["dx"])
     body += math_to("-", "图高", "裁剪高", "差Y", U["dy"])
     body += math_to("×", "差X", "位置系数", "X", U["px"])
     body += math_to("×", "差Y", "位置系数", "Y", U["py"])
-    body += cond(4, G_POS,
-                 [act("is.workflow.actions.image.crop", WFInput=REPEAT_ITEM,
-                      WFImageCropPosition="Center",
-                      WFImageCropWidth=var("裁剪宽"), WFImageCropHeight=var("裁剪高"),
-                      UUID=U["cr"])],
-                 [act("is.workflow.actions.image.crop", WFInput=REPEAT_ITEM,
-                      WFImageCropPosition="Custom",
-                      WFImageCropX=var("X"), WFImageCropY=var("Y"),
-                      WFImageCropWidth=var("裁剪宽"), WFImageCropHeight=var("裁剪高"),
-                      UUID=U["cr2"])],
-                 var("位置系数"), number_value="0.5", end_uuid=G_POS_END)
-    body += [
-        # If 结果即裁剪图(两个分支的裁剪输出都汇入 If Result)
-        act(SETV, WFVariableName="裁剪结果",
-            WFInput=out(G_POS_END, "If Result")),
-    ]
+    crop_center = [act("is.workflow.actions.image.crop", WFInput=REPEAT_ITEM,
+                       WFImageCropPosition="Center",
+                       WFImageCropWidth=var("裁剪宽"), WFImageCropHeight=var("裁剪高"),
+                       UUID=U["cr"]),
+                   act(SETV, WFVariableName="裁剪结果",
+                       WFInput=out(U["cr"], "Cropped Image"))]
+    crop_custom = [act("is.workflow.actions.image.crop", WFInput=REPEAT_ITEM,
+                       WFImageCropPosition="Custom",
+                       WFImageCropX=var("X"), WFImageCropY=var("Y"),
+                       WFImageCropWidth=var("裁剪宽"), WFImageCropHeight=var("裁剪高"),
+                       UUID=U["cr2"]),
+                   act(SETV, WFVariableName="裁剪结果",
+                       WFInput=out(U["cr2"], "Cropped Image"))]
+    crop_bottom = [act("is.workflow.actions.image.crop", WFInput=REPEAT_ITEM,
+                       WFImageCropPosition="Custom",
+                       WFImageCropX=var("X"), WFImageCropY=var("Y"),
+                       WFImageCropWidth=var("裁剪宽"), WFImageCropHeight=var("裁剪高"),
+                       UUID=U["cr3"]),
+                   act(SETV, WFVariableName="裁剪结果",
+                       WFInput=out(U["cr3"], "Cropped Image"))]
+    # 位置系数 <0.25 → 靠上/左;<0.75(嵌套) → 居中;否则 → 靠下/右
+    body += cond(0, G_POS,
+                 crop_custom,
+                 cond(0, G_POS2, crop_center, crop_bottom,
+                      var("位置系数"), number_value="0.75"),
+                 var("位置系数"), number_value="0.25")
     # ── 黑边遮幅(可选):长边的 4.5385%,横版加上下、竖版加左右 ──
     bars_branch = [
         act(MATH, WFMathOperation="-", WFInput=var("裁剪宽"),
@@ -222,9 +232,10 @@ def crop_loop(save):
         act(SETV, WFVariableName="成品", WFInput=out(U["ov"], "Overlaid Image")),
     ]
     if save:
-        body += cond(4, G_BARSON, bars_branch,
+        body += cond(0, G_BARSON,
                      [act(SETV, WFVariableName="成品", WFInput=var("裁剪结果"))],
-                     var("遮幅开关"), number_value="1")
+                     bars_branch,
+                     var("遮幅开关"), number_value="0.5")
         body.append(act("is.workflow.actions.savetocameraroll", WFInput=var("成品")))
     else:
         body += bars_branch  # 测试模式:始终加遮幅,以叠加动作结尾,结果即循环输出
