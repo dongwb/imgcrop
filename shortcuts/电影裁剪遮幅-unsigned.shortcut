@@ -295,7 +295,7 @@
 				<key>WFMenuItems</key>
 				<array>
 					<string>电影画幅 2.71:1</string>
-					<string>宽银幕 2.39:1</string>
+					<string>宽银幕 2.17:1</string>
 					<string>16:9</string>
 					<string>4:3</string>
 					<string>1:1 正方形</string>
@@ -363,7 +363,7 @@
 				<key>WFControlFlowMode</key>
 				<integer>1</integer>
 				<key>WFMenuItemTitle</key>
-				<string>宽银幕 2.39:1</string>
+				<string>宽银幕 2.17:1</string>
 			</dict>
 		</dict>
 		<dict>
@@ -374,7 +374,7 @@
 				<key>UUID</key>
 				<string>0B000002-0000-4000-8000-000000000002</string>
 				<key>WFNumberActionNumber</key>
-				<real>2.39</real>
+				<real>2.172944297082228</real>
 			</dict>
 		</dict>
 		<dict>
